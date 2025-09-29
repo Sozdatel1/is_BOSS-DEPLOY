@@ -321,15 +321,8 @@ matchmaking:
     loss:
       tc: 2+0
     drum:
-      tc: 0.5+0
+      tc: 0.5+1
       variant: chess960
-    anti:
-      tc: 0.75+0
-      variant: antichess
-    horde:
-      tc: 0.75+0
-      variant: horde
-    
 
 messages:
   greeting: "Konnichiwa guzaimase! ❤️‍🔥Using help of {engine} Type !help to glimpse my arsenal. Best of luck"
