@@ -198,6 +198,11 @@ opening_books:
       names:
         - realanti
         - anti
+    3check_black:
+      selection: best_move
+      allow_repetitions: false
+      names:
+        - 3check
 online_moves:
   opening_explorer:
     enabled: false
@@ -362,4 +367,5 @@ books:
   chess960: "./engines/chess960.bin"
   960: "./engines/randomchess.bin"
   realanti: "./engines/anti.bin"
+  3check: "./engines/3check.bin"
 
