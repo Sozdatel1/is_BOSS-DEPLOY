@@ -1,4 +1,4 @@
-name: Download and Commit Stock
+name: Download and Commit Stockfish
 
 on:
   workflow_dispatch:
@@ -12,13 +12,14 @@ jobs:
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0   # fetch full history to allow rebasing
 
-      - name: Download and extract Stockfish
+      - name: Download latest Stockfish
         run: |
           curl -L "https://github.com/official-stockfish/Stockfish/releases/download/stockfish-dev-20250928-3073d82c/stockfish-ubuntu-x86-64-bmi2.tar" -o stockfish.tar
-          tar -xf stockfish.tar  # This creates 'stockfish/' folder with the binary
+          tar -xf stockfish.tar
 
-      - name: Move Stockfish binary to engines folder
+      - name: Move Stockfish binary to engines folder (keep original name)
         run: |
           mkdir -p engines
           mv stockfish/stockfish-ubuntu-x86-64-bmi2 engines/
@@ -32,5 +33,6 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add engines/stockfish-ubuntu-x86-64-bmi2
-          git commit -m "Update Stockfish binary"
+          git commit -m "Update Stockfish binary" || echo "No changes to commit"
+          git pull --rebase origin main
           git push
