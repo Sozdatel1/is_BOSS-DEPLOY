@@ -32,16 +32,16 @@ engines:
      # time: 20.0
       #depth: 50
     #  nodes: 5000000
-  0.5+0:
+  classical:
     dir: "./engines"
     name: "stockfish-ubuntu-x86-64-bmi2"
     ponder: true
     silence_stderr: false
-    move_overhead_multiplier: 19.0
+    move_overhead_multiplier: 1.0
     uci_options:
       Threads: 4
       Hash: 4096
-      Move Overhead: 108
+      Move Overhead: 10
      # Use NNUE: true 
     #  EvalFile: "nn-46832cfbead3.nnue"
     limits:
@@ -298,7 +298,7 @@ matchmaking:
   selection: cyclic
   types:
     hp:
-      tc: 0.5+0
+      tc: 90+30
     bp:
       tc: 0.75+0
     bullet:
