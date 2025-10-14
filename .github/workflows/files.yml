@@ -1,0 +1,48 @@
+name: Check Huge Pages Support
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check-hugepages:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Show OS and kernel info
+        run: |
+          echo "=== OS and Kernel Info ==="
+          uname -a
+          lsb_release -a || cat /etc/os-release
+          echo
+
+      - name: Check hugepage-related settings
+        run: |
+          echo "=== Hugepage Configuration ==="
+          grep Huge /proc/meminfo || echo "No hugepage info found."
+          echo
+          echo "=== sysctl values (if readable) ==="
+          sysctl -a 2>/dev/null | grep huge || echo "Cannot access hugepage sysctl."
+          echo
+          echo "=== Check mount points ==="
+          cat /proc/mounts | grep huge || echo "No hugetlbfs mounted."
+          echo
+          echo "=== Try to allocate hugepage ==="
+          cat <<'EOF' > test_hugepage.c
+          #include <sys/mman.h>
+          #include <stdio.h>
+          #include <errno.h>
+          #include <string.h>
+          #define SIZE (2*1024*1024)
+          int main() {
+              void* p = mmap(NULL, SIZE, PROT_READ | PROT_WRITE,
+                             MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB, -1, 0);
+              if (p == MAP_FAILED) {
+                  printf("Hugepage mmap failed: %s\n", strerror(errno));
+                  return 1;
+              }
+              printf("Hugepage mmap succeeded!\n");
+              return 0;
+          }
+          EOF
+          gcc test_hugepage.c -o test_hugepage
+          ./test_hugepage || echo "(Expected to fail on GitHub runners)"
