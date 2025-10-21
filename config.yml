@@ -304,6 +304,7 @@ matchmaking:
     bullet:
       tc: 0+1
       variant: chess960
+      rated: true
     bulle2:
       tc: 3+0
     bc:
