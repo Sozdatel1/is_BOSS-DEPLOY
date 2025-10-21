@@ -140,7 +140,7 @@ opening_books:
      #   - Titans
         - Opimus3.1
        # - optimus4
-    standard_human: 
+    standard_human_tournament: 
       selection: best_move 
       allow_repetitions: true   
       names: 
