@@ -44,38 +44,46 @@ jobs:
           sed -i "s/TokenTimeIsBackBuddyss/${{ secrets.LICHESS_KEY }}/g" config.yml
           chmod +x ./engines/stockfish-ubuntu-x86-64-bmi2 ./engines/fairy-stockfish_x86-64-bmi2 ./engines/stockfish-7-x64-bmi2
 
-      - name: Set environment variables
-        run: |
-          echo "LICHESS_KEY=${{ secrets.LICHESS_KEY }}" >> $GITHUB_ENV
-          echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" >> $GITHUB_ENV
-
-      - name: Run Bot with Logging
-        run: |
-          echo "Starting bot..."
-          export LICHESS_KEY=${{ secrets.LICHESS_KEY }}
-          export BOT_TOKEN=${{ secrets.BOT_TOKEN }}
-          
-          # Запуск бота с логированием
-          python3 -u user_interface.py "matchmaking" "tournament JUT6xRg3" >> bot.log 2>&1 &
-          PID=$!
-          
-          # Таймер для автоматического завершения
-          ( sleep 20700 && echo "Time up. Killing bot..." && kill -SIGTERM $PID ) &
-          wait $PID
-          
-          echo "Bot ended cleanly."
-
-      - name: 🔁 Self-Restart
-        if: always()
-        run: gh workflow run "Run bot"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Verify environment
+      - name: Verify environment variables
         run: |
           echo "LICHESS_KEY: $LICHESS_KEY"
           echo "BOT_TOKEN: $BOT_TOKEN"
           echo "PYTHONPATH: $PYTHONPATH"
           echo "Current directory: $(pwd)"
           ls -la
-          cat bot.log  # Выведем содержимое лога в вывод workflow
+          ls -la ./engines
+          ls -la ./config.yml
+          ls -la ./user_interface.py
+
+      - name: Check Python version
+        run: |
+          python3 --version
+          pip3 --version
+
+      - name: Run Bot with Detailed Logging
+        run: |
+          echo "Starting bot..."
+          export LICHESS_KEY=${{ secrets.LICHESS_KEY }}
+          export BOT_TOKEN=${{ secrets.BOT_TOKEN }}
+          
+          # Запуск бота с подробным логированием
+          python3 -u user_interface.py "matchmaking" "tournament JUT6xRg3" >> bot.log 2>&1
+          
+          # Проверка статуса выполнения
+          if [ $? -ne 0 ]; then
+            echo "Bot failed to start"
+            cat bot.log
+            exit 1
+          fi
+
+      - name: Verify bot.log contents
+        if: failure()
+        run: |
+          echo "Contents of bot.log:"
+          cat bot.log
+
+      - name: 🔁 Self-Restart
+        if: always()
+        run: gh workflow run "Run bot"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
