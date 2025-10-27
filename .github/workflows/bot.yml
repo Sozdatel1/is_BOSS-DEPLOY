@@ -54,10 +54,15 @@ jobs:
           echo "Starting bot..."
           export LICHESS_KEY=${{ secrets.LICHESS_KEY }}
           export BOT_TOKEN=${{ secrets.BOT_TOKEN }}
-          python3 -u user_interface.py "matchmaking" "tournament JUT6xRg3" &
+          
+          # Запуск бота с логированием
+          python3 -u user_interface.py "matchmaking" "tournament JUT6xRg3" >> bot.log 2>&1 &
           PID=$!
+          
+          # Таймер для автоматического завершения
           ( sleep 20700 && echo "Time up. Killing bot..." && kill -SIGTERM $PID ) &
           wait $PID
+          
           echo "Bot ended cleanly."
 
       - name: 🔁 Self-Restart
@@ -68,7 +73,15 @@ jobs:
 
       - name: Upload logs
         if: failure()
-        uses: actions/upload-artifact@v3.1.2  # Обновленная версия
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: bot-logs
           path: bot.log
+
+      - name: Verify environment
+        run: |
+          echo "LICHESS_KEY: $LICHESS_KEY"
+          echo "BOT_TOKEN: $BOT_TOKEN"
+          echo "PYTHONPATH: $PYTHONPATH"
+          echo "Current directory: $(pwd)"
+          ls -la
