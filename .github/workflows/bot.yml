@@ -11,11 +11,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 355  # just under 6h limit
+    timeout-minutes: 355
 
     concurrency:
       group: bot-run
-      cancel-in-progress: false  # keep live jobs safe
+      cancel-in-progress: false
+
+    env:
+      LICHESS_KEY: ${{ secrets.LICHESS_KEY }}
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
 
     steps:
       - name: Checkout repo
@@ -40,12 +44,18 @@ jobs:
           sed -i "s/TokenTimeIsBackBuddyss/${{ secrets.LICHESS_KEY }}/g" config.yml
           chmod +x ./engines/stockfish-ubuntu-x86-64-bmi2 ./engines/fairy-stockfish_x86-64-bmi2 ./engines/stockfish-7-x64-bmi2
 
-      - name: Run Bot
+      - name: Set environment variables
+        run: |
+          echo "LICHESS_KEY=${{ secrets.LICHESS_KEY }}" >> $GITHUB_ENV
+          echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" >> $GITHUB_ENV
+
+      - name: Run Bot with Logging
         run: |
           echo "Starting bot..."
+          export LICHESS_KEY=${{ secrets.LICHESS_KEY }}
+          export BOT_TOKEN=${{ secrets.BOT_TOKEN }}
           python3 -u user_interface.py "matchmaking" "tournament JUT6xRg3" &
           PID=$!
-          # Auto-exit before GitHub 6h limit
           ( sleep 20700 && echo "Time up. Killing bot..." && kill -SIGTERM $PID ) &
           wait $PID
           echo "Bot ended cleanly."
@@ -56,21 +66,12 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      - name: Upload logs
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: bot-logs
+          path: bot.log
 
 
 
