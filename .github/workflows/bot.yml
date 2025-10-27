@@ -54,10 +54,15 @@ jobs:
           echo "Starting bot..."
           export LICHESS_KEY=${{ secrets.LICHESS_KEY }}
           export BOT_TOKEN=${{ secrets.BOT_TOKEN }}
+          
+          # Запуск бота с логированием
           python3 -u user_interface.py "matchmaking" "tournament JUT6xRg3" >> bot.log 2>&1 &
           PID=$!
+          
+          # Таймер для автоматического завершения
           ( sleep 20700 && echo "Time up. Killing bot..." && kill -SIGTERM $PID ) &
           wait $PID
+          
           echo "Bot ended cleanly."
 
       - name: 🔁 Self-Restart
@@ -66,13 +71,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload logs
-        if: failure()
-        uses: actions/upload-artifact  # Убрали указание версии
-        with:
-          name: bot-logs
-          path: bot.log
-
       - name: Verify environment
         run: |
           echo "LICHESS_KEY: $LICHESS_KEY"
@@ -80,3 +78,4 @@ jobs:
           echo "PYTHONPATH: $PYTHONPATH"
           echo "Current directory: $(pwd)"
           ls -la
+          cat bot.log  # Выведем содержимое лога в вывод workflow
