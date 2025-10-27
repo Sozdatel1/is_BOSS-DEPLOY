@@ -284,6 +284,7 @@ challenge:
     - rapid
   #  - classical
   human_time_controls:
+    - bullet
     - rapid
   bot_modes:
     - casual
