@@ -11,15 +11,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 355
+    timeout-minutes: 355  # just under 6h limit
 
     concurrency:
       group: bot-run
-      cancel-in-progress: false
-
-    env:
-      LICHESS_KEY: ${{ secrets.LICHESS_KEY }}
-      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+      cancel-in-progress: false  # keep live jobs safe
 
     steps:
       - name: Checkout repo
@@ -44,43 +40,15 @@ jobs:
           sed -i "s/TokenTimeIsBackBuddyss/${{ secrets.LICHESS_KEY }}/g" config.yml
           chmod +x ./engines/stockfish-ubuntu-x86-64-bmi2 ./engines/fairy-stockfish_x86-64-bmi2 ./engines/stockfish-7-x64-bmi2
 
-      - name: Verify environment variables
-        run: |
-          echo "LICHESS_KEY: $LICHESS_KEY"
-          echo "BOT_TOKEN: $BOT_TOKEN"
-          echo "PYTHONPATH: $PYTHONPATH"
-          echo "Current directory: $(pwd)"
-          ls -la
-          ls -la ./engines
-          ls -la ./config.yml
-          ls -la ./user_interface.py
-
-      - name: Check Python version
-        run: |
-          python3 --version
-          pip3 --version
-
-      - name: Run Bot with Detailed Logging
+      - name: Run Bot
         run: |
           echo "Starting bot..."
-          export LICHESS_KEY=${{ secrets.LICHESS_KEY }}
-          export BOT_TOKEN=${{ secrets.BOT_TOKEN }}
-          
-          # Запуск бота с подробным логированием
-          python3 -u user_interface.py "matchmaking" "tournament JUT6xRg3" >> bot.log 2>&1
-          
-          # Проверка статуса выполнения
-          if [ $? -ne 0 ]; then
-            echo "Bot failed to start"
-            cat bot.log
-            exit 1
-          fi
-
-      - name: Verify bot.log contents
-        if: failure()
-        run: |
-          echo "Contents of bot.log:"
-          cat bot.log
+          python3 -u user_interface.py "matchmaking" "tournament JUT6xRg3" &
+          PID=$!
+          # Auto-exit before GitHub 6h limit
+          ( sleep 20700 && echo "Time up. Killing bot..." && kill -SIGTERM $PID ) &
+          wait $PID
+          echo "Bot ended cleanly."
 
       - name: 🔁 Self-Restart
         if: always()
