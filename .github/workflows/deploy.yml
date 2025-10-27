@@ -6,7 +6,7 @@ on:
       - main
 
 permissions:
-  contents: write  # Важно для прав на запись
+  contents: write
 
 jobs:
   deploy:
@@ -14,14 +14,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - name: Set up Git credentials
+      - name: Configure Git credentials
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
-          
-      - name: Push to target repository
-        env:
-          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}  # Используйте ваш секретный токен
+      
+      - name: Push changes
         run: |
-          git remote set-url origin https://x-access-token:${ACCESS_TOKEN}@github.com/Sozdatel1/is_BOSS-DEPLOY.git
+          git remote set-url origin https://x-access-token=${GITHUB_TOKEN}@github.com/Sozdatel1/is_BOSS-DEPLOY.git
           git push origin main
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
