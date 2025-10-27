@@ -1,0 +1,27 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write  # Важно для прав на запись
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Git credentials
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          
+      - name: Push to target repository
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}  # Используйте ваш секретный токен
+        run: |
+          git remote set-url origin https://x-access-token:${ACCESS_TOKEN}@github.com/Sozdatel1/is_BOSS-DEPLOY.git
+          git push origin main
