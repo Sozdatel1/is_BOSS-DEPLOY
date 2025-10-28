@@ -262,7 +262,7 @@ resign:
   min_rating: 3000
 
 challenge:
-  concurrency: 1
+  concurrency: 3
   bullet_with_increment_only: false
   max_takebacks: 2
   min_initial: 120
@@ -294,7 +294,7 @@ challenge:
     - rated
 
 matchmaking:
-  delay: 480
+  delay: 30
   timeout: 30
   selection: cyclic
   types:
