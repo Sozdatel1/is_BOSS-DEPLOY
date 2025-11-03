@@ -247,7 +247,7 @@ online_moves:
     timeout: 3
 
 offer_draw:
-  enabled: false
+  enabled: true
   score: 10
   consecutive_moves: 2
   min_game_length: 30
