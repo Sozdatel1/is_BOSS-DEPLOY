@@ -249,7 +249,7 @@ online_moves:
 offer_draw:
   enabled: true
   score: 10
-  consecutive_moves: 2
+  consecutive_moves: 4
   min_game_length: 30
   against_humans: false
  # min_rating: 3000
