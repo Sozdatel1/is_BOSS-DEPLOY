@@ -1,5 +1,5 @@
 token: "TokenTimeIsBackBuddyss"  # Lichess OAuth2 Token.
--
+if
 engines:
   standard:
     dir: "./engines"
