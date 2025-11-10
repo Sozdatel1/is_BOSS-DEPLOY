@@ -6,7 +6,7 @@ on:
     branches:
       - "main"
     paths:
-      - "user_interface.pуy"
+      - "user_interfaceу.py"
 
 jobs:
   build:
@@ -55,4 +55,5 @@ jobs:
         run: gh workflow run "Run bot"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
